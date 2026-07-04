@@ -16,5 +16,8 @@ dependencies = []
 [project.scripts]
 nexusai = "nexusai_core.main:main"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
 where = ["src"]
