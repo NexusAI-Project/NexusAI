@@ -7,6 +7,11 @@ import unittest
 from fastapi.testclient import TestClient
 
 from nexusai_core.local_gateway.app import create_app
+from nexusai_core.local_gateway.runner import (
+    APP_IMPORT_PATH,
+    DEFAULT_GATEWAY_HOST,
+    DEFAULT_GATEWAY_PORT,
+)
 from nexusai_core.local_gateway.security import is_loopback_host
 
 
@@ -47,6 +52,12 @@ class TestLocalGateway(unittest.TestCase):
         self.assertIn("/api/tags", paths)
         self.assertIn("/api/generate", paths)
         self.assertIn("/api/chat", paths)
+
+    def test_runner_safe_defaults(self) -> None:
+        self.assertEqual(DEFAULT_GATEWAY_HOST, "127.0.0.1")
+        self.assertNotEqual(DEFAULT_GATEWAY_HOST, "0.0.0.0")
+        self.assertEqual(DEFAULT_GATEWAY_PORT, 11435)
+        self.assertEqual(APP_IMPORT_PATH, "nexusai_core.local_gateway.app:app")
 
 
 if __name__ == "__main__":
