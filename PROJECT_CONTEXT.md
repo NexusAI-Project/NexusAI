@@ -1,8 +1,8 @@
 # NexusAI Project Context
 
-This document is the official project memory for NexusAI.
+This document provides a public, practical context for NexusAI.
 
-Its purpose is to help ChatGPT, Codex, future contributors, and the founder resume work on the project without confusion, even if the original conversation context is lost.
+Its purpose is to help contributors, tools, and future work sessions understand the current state of the repository without exposing detailed private strategy or long-term implementation plans.
 
 ---
 
@@ -11,24 +11,25 @@ Its purpose is to help ChatGPT, Codex, future contributors, and the founder resu
 - **Project name:** NexusAI
 - **Founder:** Damien / Pain
 - **Repository:** `NexusAI-Project/NexusAI`
-- **Current branch for stable work:** `main`
-- **Project nature:** long-term intelligent ecosystem with a central core and modular extensions.
+- **Stable branch:** `main`
+- **Project nature:** an evolving AI framework built around a clean core and future extensibility.
 
-NexusAI is not intended to be a single isolated AI tool. It is designed as a living architecture: a central intelligence layer able to coordinate modules, evolve over time, and become the foundation for future platforms, integrations, and intelligent systems.
+NexusAI explores how a small, well-structured foundation can grow into a larger intelligent system over time.
 
 ---
 
-## 2. Vision
+## 2. Public Vision
 
-NexusAI aims to become an intelligent ecosystem composed of:
+NexusAI is a long-term project focused on modular AI architecture, clean software foundations, and gradual evolution.
 
-- a central core;
-- internal memory;
-- a modular runtime;
-- communication between independent modules;
-- future integrations with APIs, desktop systems, games, automation tools, and AI agents.
+The public vision is intentionally broad:
 
-The long-term vision is to build a system where each module can communicate with the central core while staying cleanly separated, testable, replaceable, and extensible.
+- keep the core simple and understandable;
+- preserve a clean project structure;
+- support future extensions without locking the project into one narrow direction;
+- improve through small, reviewed, testable phases.
+
+More detailed strategic notes, private roadmap items, and future implementation ideas should be kept outside the public repository.
 
 ---
 
@@ -39,42 +40,38 @@ NexusAI has completed its first technical foundation:
 - **Phase:** Foundation v0.1
 - **Status:** merged into `main`
 - **Merge source:** Pull Request #1
-- **Foundation goal:** create a minimal Python core able to boot, expose identity, keep temporary memory, register modules, and publish internal events.
+- **Current foundation:** a minimal Python core with development commands, tests, and CI.
 
-The repository now contains both symbolic project identity and a first working Python foundation.
+The repository now contains both project identity documents and a first working Python foundation.
 
 ---
 
-## 4. Current Core Modules
+## 4. Current Repository Areas
 
-The current Python package is located in:
+Important public files and areas:
+
+| Path | Purpose |
+|---|---|
+| `README.md` | Public overview and development commands. |
+| `THE_FIRST_STONE.md` | Founding symbolic document. |
+| `PROJECT_CONTEXT.md` | Public project context and recovery guide. |
+| `CHANGELOG.md` | Public change history. |
+| `.github/workflows/ci.yml` | CI workflow for tests. |
+| `src/nexusai_core/` | Current Python foundation. |
+| `tests/` | Current test suite. |
+| `docs/chronicles/` | Historical project milestones. |
+
+Current core files:
 
 ```txt
 src/nexusai_core/
 ```
 
-Current components:
-
-| Component | Role |
-|---|---|
-| `heart.py` | Stores NexusAI identity, purpose, version, and values. |
-| `memory.py` | Provides minimal in-memory key-value storage. |
-| `module_registry.py` | Registers and lists known NexusAI modules. |
-| `event_bus.py` | Publishes internal events and keeps event history. |
-| `main.py` | Boots the minimal `NexusCore` runtime. |
-| `__init__.py` | Exposes the public package API and version. |
-
-Current tests:
-
-```txt
-tests/test_core_boot.py
-```
-
-The boot test verifies that NexusAI starts correctly, registers its core module, writes boot state to memory, and emits a `core.booted` event.
+The current core remains intentionally small and should stay easy to understand, test, and evolve.
 
 ---
 
-## 5. Important Rules
+## 5. Important Public Rules
 
 When continuing NexusAI, preserve the existing foundations.
 
@@ -87,23 +84,19 @@ Do not break or remove:
 - `tests/test_core_boot.py`
 - existing files under `src/nexusai_core/` unless the task explicitly targets the core implementation.
 
-Special care:
-
-- `THE_FIRST_STONE.md` is a symbolic founding document. Do not rewrite it casually.
-- The CI workflow must keep validating the Python test suite.
-- The package must remain installable with:
+The project must remain installable with:
 
 ```bash
 python -m pip install -e .
 ```
 
-- The core must remain runnable with:
+The core must remain runnable with:
 
 ```bash
 python -m nexusai_core.main
 ```
 
-- Tests must remain runnable with:
+Tests must remain runnable with:
 
 ```bash
 python -m unittest discover -s tests
@@ -111,21 +104,21 @@ python -m unittest discover -s tests
 
 ---
 
-## 6. Development Workflow
+## 6. Public Development Workflow
 
 Use a clean branch and Pull Request workflow.
 
 Recommended workflow:
 
 1. Create a new branch from `main`.
-2. Make focused changes only for the requested phase.
+2. Make focused changes only for the requested scope.
 3. Open a Pull Request into `main`.
-4. Audit the Pull Request before merge.
+4. Review the Pull Request before merge.
 5. Wait for CI to pass.
-6. Merge only after explicit validation.
+6. Merge only after validation.
 7. Prefer squash merge for clean project history.
 
-Do not merge directly into `main` unless explicitly requested and validation has already happened.
+Avoid direct changes to `main` unless the change is explicitly approved and validated.
 
 ---
 
@@ -134,61 +127,36 @@ Do not merge directly into `main` unless explicitly requested and validation has
 Foundation v0.1 established:
 
 - Python `src/` layout;
-- typed core package;
+- minimal typed core package;
 - no unnecessary runtime dependencies;
-- minimal runtime boot;
-- internal event bus;
-- memory layer;
-- module registry;
-- project changelog;
-- CI test workflow;
-- development instructions in `README.md`.
+- development commands;
+- test coverage for core boot;
+- CI validation;
+- public project history.
 
-This is the stable base for future versions.
+This is the public stable base for future versions.
 
 ---
 
 ## 8. Recommended Next Phase
 
-The recommended next phase is:
+The next phase should continue strengthening the core runtime and improving test coverage.
 
-```txt
-Core Runtime v0.2
-```
-
-Suggested goals for Core Runtime v0.2:
-
-- introduce a clearer runtime lifecycle: `boot`, `start`, `stop`, `status`;
-- add module states: `registered`, `enabled`, `disabled`, `failed`;
-- add stronger event payload validation;
-- add more tests for memory, events, and module registry;
-- prepare a future configuration system;
-- keep the core simple and dependency-light.
-
-Do not rush into external modules before the runtime lifecycle is stable.
+Detailed roadmap items and strategic implementation notes should be kept outside this public context file until they are ready to be published.
 
 ---
 
-## 9. How to Resume If Conversation Context Is Lost
+## 9. How to Resume Work
 
-If a future assistant, Codex session, or contributor loses the original conversation context, resume from this file.
+Read `README.md`, `PROJECT_CONTEXT.md`, `THE_FIRST_STONE.md`, inspect `src/nexusai_core/`, run tests, continue through a scoped branch and Pull Request.
 
-Recommended recovery steps:
-
-1. Read `PROJECT_CONTEXT.md` first.
-2. Read `README.md` for usage instructions.
-3. Read `THE_FIRST_STONE.md` to understand the founding spirit.
-4. Inspect `src/nexusai_core/` to understand the technical foundation.
-5. Run the test suite:
+Useful commands:
 
 ```bash
 python -m pip install -e .
 python -m unittest discover -s tests
 ```
 
-6. Check open issues and Pull Requests before creating new work.
-7. Continue with a small scoped branch and PR.
+Guiding principle:
 
-The guiding rule is simple:
-
-> Protect the foundation, improve the core, and grow NexusAI one clean phase at a time.
+> Keep the public foundation clean, understandable, and safe to evolve.
