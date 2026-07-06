@@ -44,14 +44,37 @@ class TestLocalGateway(unittest.TestCase):
         self.assertFalse(is_loopback_host("192.168.1.10"))
         self.assertFalse(is_loopback_host("example.com"))
 
+    def test_homepage(self) -> None:
+        client = TestClient(create_app())
+
+        response = client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("NexusAI Local Gateway", response.text)
+        self.assertIn("Le cœur lumineux", response.text)
+        self.assertIn("127.0.0.1", response.text)
+        self.assertIn("Local-only", response.text)
+
+    def test_schema_route(self) -> None:
+        client = TestClient(create_app())
+
+        response = client.get("/api/schema.json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["info"]["title"], "NexusAI Local Gateway")
+        self.assertEqual(client.get("/openapi.json").status_code, 404)
+
     def test_gateway_routes_exist(self) -> None:
         app = create_app()
         paths = {route.path for route in app.routes}
 
+        self.assertIn("/", paths)
         self.assertIn("/health", paths)
         self.assertIn("/api/tags", paths)
         self.assertIn("/api/generate", paths)
         self.assertIn("/api/chat", paths)
+        self.assertIn("/api/schema.json", paths)
+        self.assertNotIn("/openapi.json", paths)
 
     def test_runner_safe_defaults(self) -> None:
         self.assertEqual(DEFAULT_GATEWAY_HOST, "127.0.0.1")
