@@ -72,6 +72,10 @@ class TestLocalGateway(unittest.TestCase):
         self.assertIn("Compatibility estimate", response.text)
         self.assertIn("Nexus Console", response.text)
         self.assertIn("ollama pull", response.text)
+        self.assertIn("NexusAI Pulse", response.text)
+        self.assertIn("nexusai-logo.png", response.text)
+        self.assertIn("Audit modèle bientôt disponible", response.text)
+        self.assertIn("NexusAI Local Gateway démarre", response.text)
 
     def test_schema_route(self) -> None:
         client = TestClient(create_app())

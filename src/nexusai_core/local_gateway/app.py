@@ -8,10 +8,12 @@ to the local Ollama service at http://127.0.0.1:11434.
 from __future__ import annotations
 
 from typing import Any, Awaitable
+from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from .ollama_client import OllamaClient
 
@@ -33,6 +35,10 @@ def create_app(ollama_client: OllamaClient | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url="/api/schema.json",
     )
+
+    static_dir = Path(__file__).with_name("static")
+    if static_dir.exists():
+        app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
     @app.get("/", response_class=HTMLResponse)
     async def homepage() -> str:
@@ -95,12 +101,17 @@ def _homepage_html() -> str:
     .controls,.quick-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; } .roles { display:grid; gap:10px; } .role { display:grid; grid-template-columns:160px 1fr auto; gap:10px; align-items:start; border:1px solid var(--line); border-radius:16px; padding:12px; background:rgba(255,255,255,.03); } .status-ok { color:var(--ok); } .status-warn { color:var(--warn); } .command { color:var(--warn); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.9rem; margin-top:6px; } .compat { font-size:1.2rem; font-weight:900; color:var(--blue); } input,select { border:1px solid var(--line); border-radius:12px; padding:10px; color:var(--text); background:var(--panel); }
     details { margin-top:18px; } summary { cursor:pointer; color:var(--blue); font-weight:850; } #models { display:grid; gap:10px; color:var(--muted); margin-top:12px; } .model { color:var(--text); border:1px solid var(--line); border-radius:14px; padding:10px 12px; background:var(--blue-soft); }
     .console { margin-top:18px; padding:18px; background:#05070d; } [data-theme="light"] .console { background:#f8fbff; } .log { height:220px; overflow:auto; display:flex; flex-direction:column; gap:6px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.9rem; } .OK{color:var(--ok)} .INFO{color:var(--blue)} .WARN{color:var(--warn)} .ERROR{color:var(--error)} .DEBUG{color:var(--debug)} .console-row { display:flex; gap:8px; margin-top:12px; } .console-row input { flex:1; }
+    .brand { display:flex; align-items:center; gap:12px; font-weight:900; }
+    .brand-logo { width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 0 14px rgba(54,163,255,.42)); }
+    .brand-fallback { font-size:1.25rem; letter-spacing:-.045em; }
+    .top-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end; }
+    .pulse { border-color:rgba(61,220,151,.45); color:var(--ok); background:rgba(61,220,151,.08); }
     @media (max-width:860px) { .grid,.matrix-layout { grid-template-columns:1fr; } .role { grid-template-columns:1fr; } .hero { margin-top:42px; } }
   </style>
 </head>
 <body>
   <div class="shell">
-    <header><div class="wordmark" aria-label="NexusAI"><span class="nexus">Nexus</span><span class="ai">AI</span></div><button id="theme-toggle" type="button">Dark / Light</button></header>
+    <header><div class="brand" aria-label="NexusAI"><img class="brand-logo" src="/static/nexusai-logo.png" alt="NexusAI logo" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\';"><span class="brand-fallback" style="display:none">NexusAI</span></div><div class="top-actions"><button id="pulse" class="pulse" type="button">NexusAI Pulse</button><button id="theme-toggle" type="button">Dark / Light</button></div></header>
     <main>
       <section class="hero"><div class="eyebrow">Local control interface</div><h1>__SERVICE_NAME__</h1><p class="subtitle">Le cœur lumineux d’une intelligence de confiance.</p></section>
       <section class="grid" aria-label="Gateway status"><div class="card"><div class="label">Gateway</div><div class="value">Local</div></div><div class="card"><div class="label">Bind</div><div class="value">__GATEWAY_BIND__</div></div><div class="card"><div class="label">Ollama Target</div><div class="value">__OLLAMA_TARGET__</div></div><div class="card"><div class="label">Security</div><div class="value">Local-only</div></div></section>
@@ -126,6 +137,7 @@ const DEFAULT_PRESETS=[
 {id:10,short:'Random',name:'Smart Random',locked:false,roles:{heart:'auto',brain:'auto',fast:'auto',heavy:'auto',vision:'auto',code:'auto',chat:'auto',fallback:'auto'}}];
 let installed=[],activeId=Number(localStorage.getItem('nexusai-active-preset')||1); let presets=JSON.parse(localStorage.getItem('nexusai-presets')||'null')||structuredClone(DEFAULT_PRESETS);
 const root=document.documentElement; root.dataset.theme=localStorage.getItem('nexusai-theme')||'dark'; document.getElementById('theme-toggle').onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark'; localStorage.setItem('nexusai-theme',root.dataset.theme); log('INFO','Theme set to '+root.dataset.theme)};
+document.getElementById('pulse')?.addEventListener('click',()=>log('INFO','NexusAI Pulse — Audit modèle bientôt disponible'));
 function saveLocal(){localStorage.setItem('nexusai-presets',JSON.stringify(presets)); localStorage.setItem('nexusai-active-preset',activeId)}
 function log(level,msg){const box=document.getElementById('log'); const line=document.createElement('div'); line.className=level; line.textContent='['+level+'] '+msg; box.appendChild(line); box.scrollTop=box.scrollHeight; const logs=[...box.children].slice(-80).map(x=>({level:x.className,msg:x.textContent})); localStorage.setItem('nexusai-console',JSON.stringify(logs));}
 function restoreLogs(){(JSON.parse(localStorage.getItem('nexusai-console')||'[]')).slice(-20).forEach(x=>log(x.level||'INFO',(x.msg||'').replace(/^\[[A-Z]+\] /,'')));}
@@ -147,7 +159,7 @@ document.getElementById('refresh').onclick=refresh;
 function consoleCommand(){const input=document.getElementById('console-input'); const c=input.value.trim().toLowerCase(); input.value=''; if(c==='clear'){document.getElementById('log').textContent=''; localStorage.removeItem('nexusai-console'); return} const map={help:'Commands: help, status, models, presets, clear, links, schema',status:'Active preset '+active().name+'; compatibility '+compatibility(active())+'%; detected models '+installed.length,models:installed.join(', ')||'No models detected',presets:presets.map(p=>p.id+': '+p.name+(p.locked?' locked':'')).join(' | '),links:'/health /docs /api/tags /api/schema.json',schema:'Schema route: /api/schema.json; /openapi.json intentionally unavailable'}; log('INFO',map[c]||'Unknown UI-only command. Type help.');}
 document.getElementById('console-run').onclick=consoleCommand; document.getElementById('console-input').addEventListener('keydown',e=>{if(e.key==='Enter')consoleCommand()});
 function refresh(){fetch('/api/tags').then(r=>r.ok?r.json():Promise.reject()).then(data=>{installed=(Array.isArray(data.models)?data.models:[]).map(m=>m&&m.name).filter(Boolean); const box=document.getElementById('models'); box.textContent=''; if(!installed.length) box.textContent='Ollama unavailable or no models detected.'; installed.forEach(n=>{const d=document.createElement('div'); d.className='model'; d.textContent=n; box.appendChild(d)}); render(); log('OK','Models refreshed: '+installed.length+' detected')}).catch(()=>{installed=[]; document.getElementById('models').textContent='Ollama unavailable or no models detected.'; render(); log('ERROR','Models refresh failed or Ollama unavailable')});}
-restoreLogs(); render(); log('INFO','Nexus Console ready. Type help.'); refresh();
+restoreLogs(); log('INFO','NexusAI Local Gateway démarre...'); log('INFO','Interface de contrôle locale initialisée'); log('INFO','Gateway : __GATEWAY_BIND__'); log('INFO','Ollama Target : __OLLAMA_TARGET__'); log('INFO','Sécurité : local uniquement'); fetch('/health').then(r=>r.json()).then(d=>log('OK','/health '+JSON.stringify(d))).catch(()=>log('WARN','/health unavailable')); render(); log('INFO','Nexus Console ready. Type help.'); refresh();
 </script>
 </body>
 </html>"""
