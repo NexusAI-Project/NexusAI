@@ -51,7 +51,10 @@ class TestLocalGateway(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("NexusAI Local Gateway", response.text)
-        self.assertIn("Le cœur lumineux", response.text)
+        self.assertIn("🌐 EN / FR", response.text)
+        self.assertIn("Nexus Console", response.text)
+        self.assertIn("NexusAI Preset Feeling", response.text)
+        self.assertIn("Model readiness", response.text)
         self.assertIn("127.0.0.1", response.text)
         self.assertIn("Local-only", response.text)
 
