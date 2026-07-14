@@ -1,10 +1,11 @@
 # NexusAI
 
 <p align="center">
-  <img alt="NexusAI" src="https://img.shields.io/badge/NexusAI-living%20AI%20framework-65719A?style=flat-square">
-  <img alt="Statut" src="https://img.shields.io/badge/status-in%20development-9BA6C9?style=flat-square">
-  <img alt="Python" src="https://img.shields.io/github/languages/top/NexusAI-Project/NexusAI?style=flat-square">
   <img alt="Dernier commit" src="https://img.shields.io/github/last-commit/NexusAI-Project/NexusAI?style=flat-square">
+  <img alt="Issues" src="https://img.shields.io/github/issues/NexusAI-Project/NexusAI?style=flat-square">
+  <img alt="Stars" src="https://img.shields.io/github/stars/NexusAI-Project/NexusAI?style=flat-square">
+  <img alt="Forks" src="https://img.shields.io/github/forks/NexusAI-Project/NexusAI?style=flat-square">
+  <img alt="Licence" src="https://img.shields.io/github/license/NexusAI-Project/NexusAI?style=flat-square">
 </p>
 
 A living AI framework designed to think, evolve and grow.
