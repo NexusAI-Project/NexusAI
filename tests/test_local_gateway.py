@@ -15,6 +15,19 @@ from nexusai_core.local_gateway.runner import (
 from nexusai_core.local_gateway.security import is_loopback_host
 
 
+class StubOllamaClient:
+    """Small test double for /api/tags compatibility checks."""
+
+    async def get_tags(self) -> dict[str, list[dict[str, str]]]:
+        return {"models": [{"name": "qwen2.5:14b"}]}
+
+    async def generate(self, payload: dict[str, object]) -> dict[str, object]:
+        return payload
+
+    async def chat(self, payload: dict[str, object]) -> dict[str, object]:
+        return payload
+
+
 class TestLocalGateway(unittest.TestCase):
     """Validate the local gateway without requiring Ollama to run."""
 
@@ -54,6 +67,15 @@ class TestLocalGateway(unittest.TestCase):
         self.assertIn("Le cœur lumineux", response.text)
         self.assertIn("127.0.0.1", response.text)
         self.assertIn("Local-only", response.text)
+        self.assertIn("Preset Matrix", response.text)
+        self.assertIn("NexusAI Default 14B+", response.text)
+        self.assertIn("Compatibility estimate", response.text)
+        self.assertIn("Nexus Console", response.text)
+        self.assertIn("ollama pull", response.text)
+        self.assertIn("NexusAI Pulse", response.text)
+        self.assertIn("nexusai-logo.png", response.text)
+        self.assertIn("Audit modèle bientôt disponible", response.text)
+        self.assertIn("NexusAI Local Gateway démarre", response.text)
 
     def test_schema_route(self) -> None:
         client = TestClient(create_app())
@@ -75,6 +97,15 @@ class TestLocalGateway(unittest.TestCase):
         self.assertIn("/api/chat", paths)
         self.assertIn("/api/schema.json", paths)
         self.assertNotIn("/openapi.json", paths)
+
+
+    def test_api_tags_proxy_shape_remains_compatible(self) -> None:
+        client = TestClient(create_app(StubOllamaClient()))
+
+        response = client.get("/api/tags")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"models": [{"name": "qwen2.5:14b"}]})
 
     def test_runner_safe_defaults(self) -> None:
         self.assertEqual(DEFAULT_GATEWAY_HOST, "127.0.0.1")
