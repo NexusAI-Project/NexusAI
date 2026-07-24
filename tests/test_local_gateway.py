@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import Any
 
 from fastapi.testclient import TestClient
 
@@ -13,6 +14,23 @@ from nexusai_core.local_gateway.runner import (
     DEFAULT_GATEWAY_PORT,
 )
 from nexusai_core.local_gateway.security import is_loopback_host
+
+
+class FakeOllamaClient:
+    """Return deterministic local-model responses without network access."""
+
+    def __init__(self) -> None:
+        self.chat_payload: dict[str, Any] | None = None
+
+    async def get_tags(self) -> dict[str, list[dict[str, str]]]:
+        return {"models": [{"name": "test-model"}]}
+
+    async def generate(self, payload: dict[str, Any]) -> dict[str, bool]:
+        return {"done": True}
+
+    async def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self.chat_payload = payload
+        return {"message": {"role": "assistant", "content": "Local response"}}
 
 
 class TestLocalGateway(unittest.TestCase):
@@ -50,10 +68,42 @@ class TestLocalGateway(unittest.TestCase):
         response = client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("NexusAI Local Gateway", response.text)
-        self.assertIn("Le cœur lumineux", response.text)
+        self.assertIn("One core.", response.text)
+        self.assertIn("NexusAI Chatbox", response.text)
+        self.assertIn("Memory", response.text)
+        self.assertIn("Discord community", response.text)
         self.assertIn("127.0.0.1", response.text)
-        self.assertIn("Local-only", response.text)
+        self.assertNotIn("innerHTML", response.text)
+
+    def test_chat_proxies_valid_json_object(self) -> None:
+        ollama = FakeOllamaClient()
+        client = TestClient(create_app(ollama))
+        payload = {
+            "model": "test-model",
+            "messages": [{"role": "user", "content": "Hello"}],
+            "stream": False,
+        }
+
+        response = client.post("/api/chat", json=payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["message"]["content"], "Local response")
+        self.assertEqual(ollama.chat_payload, payload)
+
+    def test_chat_rejects_non_object_json(self) -> None:
+        client = TestClient(create_app(FakeOllamaClient()))
+
+        response = client.post("/api/chat", json=["not", "an", "object"])
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()["detail"], "Request body must be a JSON object.")
+
+    def test_chat_rejects_oversized_request(self) -> None:
+        client = TestClient(create_app(FakeOllamaClient()))
+
+        response = client.post("/api/chat", json={"prompt": "x" * 66_000})
+
+        self.assertEqual(response.status_code, 413)
 
     def test_schema_route(self) -> None:
         client = TestClient(create_app())
